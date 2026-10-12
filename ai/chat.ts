@@ -1,4 +1,4 @@
-import {createGeminiProvider, safeAIError} from './gemini.ts';
+import {createGeminiProvider, safeAIError} from './gemini.js';
 import {streamText,convertToModelMessages,validateUIMessages,stepCountIs,generateId} from 'ai';
 import Conversation from '../models/AIConversation.js';
 import GatewayState from '../models/AIGatewayState.js';
@@ -14,7 +14,7 @@ export async function chat(req,res,next) {
   if(blocked?.blocked) return res.status(blocked.status||403).json({message:blocked.message});
   const incoming=req.body?.messages;
   if(!Array.isArray(incoming)||!incoming.length) return res.status(400).json({message:'A user message is required'});
-  const last=incoming.at(-1);
+const last = incoming[incoming.length - 1];
   if(last.role!=='user') return res.status(400).json({message:'Last message must be user input'});
   for(const p of last.parts||[]) {
    if(p.type==='file' && (!['image/png','image/jpeg','image/webp'].includes(p.mediaType)||!p.url?.startsWith(`data:${p.mediaType};base64,`)||p.url.length>7_000_000)) return res.status(400).json({message:'Upload JPG, PNG or WebP, at most 5 MB.'});

@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {streamText,tool,stepCountIs,convertToModelMessages} from 'ai';
 import {z} from 'zod';
-import {createGeminiProvider,safeAIError} from '../ai/gemini.ts';
+import {createGeminiProvider,safeAIError} from '../ai/gemini.js';
 
 export function fixtureResponse(parts:unknown[],finishReason='STOP') {
  return new Response(`data: ${JSON.stringify({candidates:[{content:{role:'model',parts},finishReason}],usageMetadata:{promptTokenCount:10,candidatesTokenCount:5,totalTokenCount:15}})}\n\n`,{headers:{'Content-Type':'text/event-stream'}});
