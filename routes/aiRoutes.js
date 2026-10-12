@@ -1,0 +1,14 @@
+import {Router} from 'express';
+import rateLimit from 'express-rate-limit';
+import {authenticate,authorize} from '../middleware/auth.js';
+import {asyncHandler} from '../utils/asyncHandler.js';
+import Conversation from '../models/AIConversation.js';
+import GatewayState from '../models/AIGatewayState.js';
+import AuditLog from '../models/AuditLog.js';
+import {chat} from '../ai/chat.ts';
+const router=Router();router.use(authenticate);
+router.get('/conversation',asyncHandler(async(req,res)=>{const c=await Conversation.findOne({user:req.user._id}).lean();res.json({success:true,messages:c?.messages||[]});}));
+router.delete('/conversation',asyncHandler(async(req,res)=>{const c=await Conversation.findOne({user:req.user._id});if(c?.busy)return res.status(409).json({message:'Stop the active response first'});await Conversation.deleteOne({user:req.user._id});await AuditLog.create({userId:req.user._id,role:req.user.role,action:'AI_HISTORY_CLEARED',target:'assistant'});res.json({success:true});}));
+router.post('/resume',authorize('SUPER_ADMIN'),asyncHandler(async(req,res)=>{await GatewayState.updateOne({_id:'gemini'},{$set:{blocked:false}});await AuditLog.create({userId:req.user._id,role:req.user.role,action:'AI_ACCESS_RESUMED',target:'gemini'});res.json({success:true});}));
+router.post('/chat',rateLimit({windowMs:60_000,limit:10,standardHeaders:'draft-7',legacyHeaders:false,message:{message:'Too many requests. Wait a minute.'}}),chat);
+export default router;
