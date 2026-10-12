@@ -2,10 +2,10 @@
   "name": "ai-smartops-server",
   "version": "1.0.0",
   "type": "module",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
-    "start": "tsx server.js",
-    "dev": "nodemon --exec tsx server.js",
+    "start": "tsx index.js",
+    "dev": "nodemon --exec tsx index.js",
     "seed:admin": "node utils/seedAdmin.js",
     "seed:demo": "node utils/seedDemo.js",
     "test": "tsx --test test/*.test.js test/*.test.ts",
